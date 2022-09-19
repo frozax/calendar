@@ -36,6 +36,7 @@ class Times:
             end = datetime.datetime(y, m, d, eminute, esecond, tzinfo=tz.tzlocal())
             body = {
                 "summary": KT_EVENT_NAME,
+                "transparency": "transparent",
                 "start": {"dateTime": _dt_to_str(start)},
                 "end": {"dateTime": _dt_to_str(end)}
             }
@@ -45,7 +46,7 @@ class Times:
 
 
 classic = Times("classic", [(9.5, 12.5), (14, 18)])
-tuesday_odd = Times("tuesday_odd", [(9, 13), (13.5, 15), (17, 18.5)])
+tuesday_odd = Times("tuesday_odd", [(9, 12.5), (13.25, 15.25), (15.75, 17.25)])
 off = Times("off", [])
 
 YEAR = datetime.datetime.now().year
