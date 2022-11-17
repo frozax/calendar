@@ -42,7 +42,7 @@ class Times:
             }
             events_result = service.events().insert(calendarId='primary',
                                                     body=body).execute()
-            print(events_result)
+            print(events_result.get("status", "ERROR"))
 
 
 classic = Times("classic", [(9.5, 12.5), (14, 18)])
@@ -66,9 +66,9 @@ class ColoredTextCalendar(calendar.TextCalendar):
         elif times == classic:
             cs = colorama.Fore.LIGHTBLUE_EX
         elif times == tuesday_odd:
-            cs = colorama.Fore.LIGHTCYAN_EX
+            cs = colorama.Fore.YELLOW
         else:
-            cs = colorama.Fore.CYAN
+            cs = colorama.Fore.RED
         now = datetime.datetime.today()
         if self._kt_cal._month == now.month and day == now.day:
             cs += colorama.Back.LIGHTWHITE_EX
@@ -149,11 +149,16 @@ def input_date_to_change():
         times_to_set = tuesday_odd
     m = int(m)
     d = int(d)
-    kt_cal = KTCal(YEAR, m)
+    y = YEAR
+    # next year support
+    if m < MONTH:
+        y+=1
+    kt_cal = KTCal(y, m)
     existing = kt_cal._times.get(d, off)
+    print(f"{d}/{m}/{y}: ", end="")
     if existing == off:
         print(f"nothing, will create a {times_to_set._name} day")
-        times_to_set.add_to_calendar(YEAR, m, d)
+        times_to_set.add_to_calendar(y, m, d)
     else:
         print(f"already a {existing._name}, remove it")
         for event_id in kt_cal._events.get(d, []):
