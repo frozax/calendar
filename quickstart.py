@@ -46,7 +46,7 @@ class Times:
 
 
 classic = Times("classic", [(9.5, 12.5), (14, 18)])
-tuesday_odd = Times("tuesday_odd", [(9, 12.5), (13.25, 15.25), (15.75, 17.25)])
+tuesday_odd = Times("tuesday_odd", [(9, 12.5), (13, 16.5)])
 off = Times("off", [])
 
 YEAR = datetime.datetime.now().year
