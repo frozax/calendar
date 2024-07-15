@@ -121,48 +121,65 @@ def show_calendar():
     tc = ColoredTextCalendar(0)
     strs = []
     line_width = 20
+    month_spacing = 4
+    formatted_months = []
+    nb_lines = []
     for month in range(0, NB_MONTHS):
         dt = datetime.datetime.now() + relativedelta(months=month)
         y, m = dt.year, dt.month
         kt_cal = KTCal(y, m)
-        for iline, line in enumerate(tc.formatmonth(kt_cal).splitlines()):
+        formatted_months.append(tc.formatmonth(kt_cal).splitlines())
+        nb_lines.append(len(formatted_months[-1]))
+
+    # check if months are smaller and extends them
+    max_nb_lines = max(nb_lines)
+    for month in formatted_months:
+        if len(month) < max_nb_lines:
+            month.append(" " * 10)
+
+    for imonth, month in enumerate(formatted_months):
+        for iline, line in enumerate(month):
             line = line if len(line) >= 20 else (line + " " * (line_width - len(line)))
             if len(strs) < iline + 1:
                 strs.append(line)
             else:
-                strs[iline] += (" " * 4) + line
-        if month == NB_MONTHS // 2 - 1 or month == NB_MONTHS - 1:
+                strs[iline] += (" " * month_spacing) + line
+        if imonth == NB_MONTHS // 2 - 1 or imonth == NB_MONTHS - 1:
             # print and new line
             for l in strs:
                 print(l)
             print()
             strs.clear()
+    for l in strs:
+        print(l)
 
 def input_date_to_change():
-    input_date = input("Enter date to change (27/7), it will automatically set the proper times and remove if already existing (Use 27/7/s for a special times) :")
-    date_split = input_date.split("/")
-    if len(date_split) == 2:
-        d, m = date_split
-        times_to_set = classic
-    else:
-        d, m, _ = date_split
-        times_to_set = tuesday_odd
-    m = int(m)
-    d = int(d)
-    y = YEAR
-    # next year support
-    if m < MONTH:
-        y+=1
-    kt_cal = KTCal(y, m)
-    existing = kt_cal._times.get(d, off)
-    print(f"{d}/{m}/{y}: ", end="")
-    if existing == off:
-        print(f"nothing, will create a {times_to_set._name} day")
-        times_to_set.add_to_calendar(y, m, d)
-    else:
-        print(f"already a {existing._name}, remove it")
-        for event_id in kt_cal._events.get(d, []):
-            res = service.events().delete(calendarId="primary", eventId=event_id).execute()
+    input_dates = input("Enter date to change (27/7), it will automatically set the proper times and remove if already existing (Use 27/7/s for a special times, you can enter multiple dates: 3/9 4/9 5/9) :")
+    input_dates_split = input_dates.split(" ")
+    for input_date in input_dates_split:
+        date_split = input_date.split("/")
+        if len(date_split) == 2:
+            d, m = date_split
+            times_to_set = classic
+        else:
+            d, m, _ = date_split
+            times_to_set = tuesday_odd
+        m = int(m)
+        d = int(d)
+        y = YEAR
+        # next year support
+        if m < MONTH:
+            y+=1
+        kt_cal = KTCal(y, m)
+        existing = kt_cal._times.get(d, off)
+        print(f"{d}/{m}/{y}: ", end="")
+        if existing == off:
+            print(f"nothing, will create a {times_to_set._name} day")
+            times_to_set.add_to_calendar(y, m, d)
+        else:
+            print(f"already a {existing._name}, remove it")
+            for event_id in kt_cal._events.get(d, []):
+                res = service.events().delete(calendarId="primary", eventId=event_id).execute()
 
 
 def main():
